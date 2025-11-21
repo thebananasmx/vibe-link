@@ -9,7 +9,7 @@ import SharePreview from './components/SharePreview';
 import InfoBar from './components/InfoBar';
 import Header from './components/Header';
 import AuthModal from './components/AuthModal';
-import { generateVibeWithGemini } from './lib/gemini';
+import { generateNewVibe } from './data/mockData';
 import type { UserProfile, BentoItemData } from './types';
 import type firebase from 'firebase/compat/app';
 import { auth, db } from './firebase';
@@ -38,7 +38,6 @@ const App: React.FC = () => {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
   const [publicProfileData, setPublicProfileData] = useState<VibeConfig | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
-  const [originalInput, setOriginalInput] = useState('');
   
 
   useEffect(() => {
@@ -136,20 +135,15 @@ const App: React.FC = () => {
   };
 
 
-  const handleGenerate = async (input: string) => {
-    setOriginalInput(input);
+  const handleGenerate = (input: string) => {
     setAppState('loading');
-    try {
-      const newVibe = await generateVibeWithGemini(input);
-      if (!newVibe) {
-        throw new Error("AI generation returned null");
-      }
+    setTimeout(() => {
+      const newVibe = generateNewVibe(input);
+      // Temporarily set a vibe config to go to the preview/share screen
+      // The real config with slug will be created on signup
       setVibeConfig({ ...newVibe, slug: '' });
       setAppState('reveal');
-    } catch (e) {
-      toast.error("Couldn't generate a vibe. The AI might be tired. Please try again.");
-      setAppState('input');
-    }
+    }, 2000); 
   };
   
   const handleSignOut = async () => {
@@ -161,22 +155,9 @@ const App: React.FC = () => {
     toast.success('Logged out successfully!');
   }
 
-  const handleShuffle = async () => {
-    if (!vibeConfig) return;
-    const inputForShuffle = originalInput || vibeConfig.userProfile.name;
-    const currentSlug = vibeConfig.slug;
-    const returnState = appState;
-    setAppState('loading');
-
-    try {
-      const newVibe = await generateVibeWithGemini(inputForShuffle);
-      if (!newVibe) throw new Error("AI shuffle returned null");
-      setVibeConfig({ ...newVibe, slug: currentSlug });
-    } catch (error) {
-      console.error("AI Shuffle failed:", error);
-      toast.error("AI shuffle failed. Please try again in a moment.");
-    } finally {
-      setAppState(returnState);
+  const handleShuffle = () => {
+    if (vibeConfig) {
+      setVibeConfig({ ...generateNewVibe(vibeConfig.userProfile.name), slug: vibeConfig.slug });
     }
   };
   
