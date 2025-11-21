@@ -254,7 +254,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="antialiased relative">
+    <div className="antialiased min-h-screen flex flex-col bg-[#F5EFE6] text-[#1E1E1E]">
       <Toaster 
         position="top-center"
         toastOptions={{
@@ -275,8 +275,10 @@ const App: React.FC = () => {
         }}
       />
       <InfoBar />
-      <Header user={user} onLogin={() => setIsHeaderAuthModalOpen(true)} onLogout={handleSignOut} />
-      {renderContent()}
+      {appState !== 'share' && <Header user={user} onLogin={() => setIsHeaderAuthModalOpen(true)} onLogout={handleSignOut} />}
+      <main className="flex-grow flex flex-col">
+        {renderContent()}
+      </main>
        {isHeaderAuthModalOpen && (
         <AuthModal
           initialMode="login"

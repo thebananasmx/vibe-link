@@ -22,7 +22,7 @@ const LoadingScreen: React.FC = () => {
   }, [loadingTexts.length]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-[#F5EFE6] text-[#1E1E1E] p-4 overflow-hidden">
+    <div className="flex flex-col items-center justify-center w-full p-4 overflow-hidden flex-grow">
       <CircleLoader />
       <div className="mt-12 text-xl font-semibold text-center h-8">
         <AnimatePresence mode="wait">

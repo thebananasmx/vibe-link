@@ -16,7 +16,7 @@ const InputScreen: React.FC<InputScreenProps> = ({ onGenerate }) => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen w-full bg-[#F5EFE6] text-[#1E1E1E] p-4">
+    <div className="flex items-center justify-center w-full p-4 flex-grow">
       <div className="text-center max-w-2xl w-full">
         <h1 className="text-5xl md:text-7xl font-bold mb-4">Your Link-in-bio is boring. <br/> Fix it.</h1>
         <p className="text-lg md:text-xl text-black/80 mb-8">

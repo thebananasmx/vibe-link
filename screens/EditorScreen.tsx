@@ -72,7 +72,7 @@ const EditorScreen: React.FC<EditorScreenProps> = ({ vibeConfig, user, onShuffle
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#F5EFE6] text-[#1E1E1E] p-4 sm:p-6 lg:p-8 relative overflow-hidden">
+    <div className="w-full p-4 sm:p-6 lg:p-8 relative overflow-hidden">
       <div className="flex flex-col md:flex-row gap-8 max-w-7xl mx-auto">
         
         {/* Left Panel */}

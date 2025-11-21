@@ -11,7 +11,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ user, onLogin, onLogout }) => {
   return (
-    <header className="absolute top-0 left-0 right-0 z-10 p-4 bg-transparent">
+    <header className="w-full p-4 bg-[#F5EFE6]">
       <div className="container mx-auto flex justify-between items-center max-w-7xl">
         <a href="/" className="text-2xl font-bold text-black">VibeLink</a>
         {user ? (

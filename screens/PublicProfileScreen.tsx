@@ -11,7 +11,7 @@ const PublicProfileScreen: React.FC<PublicProfileScreenProps> = ({ vibeConfig })
   const { userProfile, items } = vibeConfig;
 
   return (
-    <div className="min-h-screen w-full bg-[#F5EFE6] text-[#1E1E1E] p-4 sm:p-6 lg:p-8 relative overflow-hidden">
+    <div className="w-full p-4 sm:p-6 lg:p-8 relative overflow-hidden">
       <main className="mx-auto max-w-4xl">
         {/* Profile Section */}
         <motion.div 
