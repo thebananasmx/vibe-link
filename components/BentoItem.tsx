@@ -30,7 +30,7 @@ const BentoItem: React.FC<BentoItemProps> = ({
   title,
   subtitle,
   href,
-  bgColor,
+  color,
   colSpan,
   rowSpan,
   type = 'default',
@@ -100,7 +100,8 @@ const BentoItem: React.FC<BentoItemProps> = ({
   
   const commonProps = {
     variants: itemVariants,
-    className: `relative flex flex-col justify-between p-0 rounded-3xl overflow-hidden group border-2 border-black shadow-[4px_4px_0px_#000] hover:shadow-[8px_8px_0px_#000] transition-all duration-300 cursor-pointer ${colSpan} ${rowSpan} ${bgColor}`,
+    className: `relative flex flex-col justify-between p-0 rounded-3xl overflow-hidden group border-2 border-black shadow-[4px_4px_0px_#000] hover:shadow-[8px_8px_0px_#000] transition-all duration-300 cursor-pointer ${colSpan} ${rowSpan}`,
+    style: { backgroundColor: color },
     whileHover: { scale: 1.02, rotate: -1 },
     whileTap: { scale: 0.98, rotate: 0 },
     transition: { type: 'spring' as const, stiffness: 300, damping: 20 },

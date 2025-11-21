@@ -13,9 +13,9 @@ export interface BentoItemData {
   title: string;
   subtitle: string;
   href: string;
-  bgColor: string;
+  color: string;
   colSpan: string;
-  rowSpan: string;
+  rowSpan:string;
   type?: 'default' | 'profile' | 'sticker';
   img?: string;
 }
