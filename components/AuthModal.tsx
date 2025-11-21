@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { X, Loader2 } from 'lucide-react';
-import { 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword,
-  type AuthError
-} from 'firebase/auth';
+// FIX: Using Firebase v8 compat methods and types. Removed v9 modular imports.
+import type firebase from 'firebase/app';
 import { auth } from '../firebase';
 
 interface AuthModalProps {
@@ -30,13 +27,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSuccess, initialMode }
 
     try {
       if (mode === 'signup') {
-        await createUserWithEmailAndPassword(auth, email, password);
+        // FIX: Use auth.createUserWithEmailAndPassword for v8.
+        await auth.createUserWithEmailAndPassword(email, password);
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
+        // FIX: Use auth.signInWithEmailAndPassword for v8.
+        await auth.signInWithEmailAndPassword(email, password);
       }
+      // The onAuthStateChanged listener in App.tsx will handle the rest.
+      // We just need to signal success to close the modal.
       onSuccess();
     } catch (err) {
-      const authError = err as AuthError;
+      // FIX: Use firebase.auth.AuthError type for v8.
+      const authError = err as firebase.auth.AuthError;
       // Friendly error messages
       switch (authError.code) {
         case 'auth/email-already-in-use':

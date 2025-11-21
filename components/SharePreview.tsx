@@ -3,7 +3,9 @@ import { motion } from 'framer-motion';
 import type { UserProfile, BentoItemData } from '../types';
 import BentoGrid from './BentoGrid';
 import AuthModal from './AuthModal';
-import { Download, Edit, Check } from 'lucide-react';
+import { Download, Edit, Check, Loader2 } from 'lucide-react';
+// FIX: Using Firebase v8 compat API. Removed v9 modular imports.
+import { auth, db } from '../firebase';
 
 interface VibeConfig {
   userProfile: UserProfile;
@@ -18,15 +20,57 @@ interface SharePreviewProps {
 const SharePreview: React.FC<SharePreviewProps> = ({ vibeConfig, onBack }) => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isUrlClaimed, setIsUrlClaimed] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   
   const { userProfile, items } = vibeConfig;
 
   // No-op edit function for preview
   const handleDummyEdit = () => {};
 
-  const handleClaimSuccess = () => {
-    setIsUrlClaimed(true);
+  const handleClaimSuccess = async () => {
     setIsAuthModalOpen(false);
+    setIsSaving(true);
+    
+    const currentUser = auth.currentUser;
+    if (!currentUser || !vibeConfig) {
+        console.error("No user logged in or no vibe config available to save.");
+        setIsSaving(false);
+        return;
+    }
+
+    try {
+        // Use the user's UID as the document ID
+        // FIX: Use db.collection().doc().set() for v8.
+        await db.collection("users").doc(currentUser.uid).set(vibeConfig);
+        setIsUrlClaimed(true);
+    } catch (error) {
+        console.error("Error writing document: ", error);
+        // You could show an error message to the user here
+    } finally {
+        setIsSaving(false);
+    }
+  };
+
+  const getButtonContent = () => {
+    if (isSaving) {
+      return (
+        <>
+          <Loader2 size={20} className="animate-spin" /> Saving...
+        </>
+      );
+    }
+    if (isUrlClaimed) {
+      return (
+        <>
+          <Check size={20} /> URL Claimed!
+        </>
+      );
+    }
+    return (
+      <>
+        <Download size={20} /> Claim URL
+      </>
+    );
   };
 
   return (
@@ -75,23 +119,15 @@ const SharePreview: React.FC<SharePreviewProps> = ({ vibeConfig, onBack }) => {
                       <Edit size={20} /> Back to Edit
                   </button>
                   <button
-                      onClick={() => !isUrlClaimed && setIsAuthModalOpen(true)}
-                      disabled={isUrlClaimed}
-                      className={`flex items-center justify-center gap-2 px-6 py-3 text-black font-bold text-lg rounded-xl border-2 border-black shadow-[4px_4px_0px_#000] transition-all duration-200 ${
+                      onClick={() => !isUrlClaimed && !isSaving && setIsAuthModalOpen(true)}
+                      disabled={isUrlClaimed || isSaving}
+                      className={`flex items-center justify-center gap-2 px-6 py-3 text-black font-bold text-lg rounded-xl border-2 border-black shadow-[4px_4px_0px_#000] transition-all duration-200 min-w-[200px] ${
                         isUrlClaimed
                           ? 'bg-green-400 cursor-default'
                           : 'bg-[#8ECAE6] hover:shadow-[6px_6px_0px_#000] active:shadow-[2px_2px_0px_#000] transform active:translate-x-[2px] active:translate-y-[2px]'
-                      }`}
+                      } ${isSaving ? 'bg-yellow-400 cursor-wait' : ''}`}
                   >
-                      {isUrlClaimed ? (
-                        <>
-                          <Check size={20} /> URL Claimed!
-                        </>
-                      ) : (
-                        <>
-                          <Download size={20} /> Claim URL
-                        </>
-                      )}
+                    {getButtonContent()}
                   </button>
               </div>
           </motion.div>
