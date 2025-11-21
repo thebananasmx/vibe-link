@@ -94,7 +94,7 @@ const RevealScreen: React.FC<RevealScreenProps> = ({ vibeConfig, user, onShuffle
         </motion.div>
 
         {/* Bento Grid Section */}
-        <BentoGrid items={items} onEditItem={setEditingItem} />
+        <BentoGrid items={items} onItemClick={setEditingItem} />
 
         {/* Footer */}
         <footer className="text-center py-6 mt-8 text-gray-500/80 text-sm">

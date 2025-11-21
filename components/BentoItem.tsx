@@ -3,9 +3,10 @@ import { motion, type Variants } from 'framer-motion';
 import type { BentoItemData } from '../types';
 import { ArrowUpRight } from 'lucide-react';
 
-// Extender las props para incluir el callback onClick
+// Extender las props para incluir el callback onClick y la bandera isPublic
 interface BentoItemProps extends BentoItemData {
   onClick: () => void;
+  isPublic?: boolean;
 }
 
 const BentoItem: React.FC<BentoItemProps> = ({
@@ -19,8 +20,8 @@ const BentoItem: React.FC<BentoItemProps> = ({
   type = 'default',
   img,
   onClick,
+  isPublic = false,
 }) => {
-  // FIX: Explicitly type itemVariants with Variants to fix type inference issue with transition.type
   const itemVariants: Variants = {
     hidden: { opacity: 0, y: 50, scale: 0.8 },
     visible: { 
@@ -55,7 +56,7 @@ const BentoItem: React.FC<BentoItemProps> = ({
 
     if (type === 'sticker' && Icon) {
         return (
-            <div className="flex items-center justify-center w-full h-full">
+            <div className="flex items-center justify-center w-full h-full p-6">
                 <Icon size={80} className="text-black/80 transform group-hover:scale-125 transition-transform duration-300" />
             </div>
         )
@@ -63,7 +64,7 @@ const BentoItem: React.FC<BentoItemProps> = ({
 
     // Default content
     return (
-      <>
+      <div className="flex flex-col justify-between p-6 h-full">
         <div className="relative z-10">
           {Icon && <Icon size={40} className="mb-2 text-black" />}
           <h3 className="text-xl md:text-2xl font-bold text-black">{title}</h3>
@@ -74,23 +75,36 @@ const BentoItem: React.FC<BentoItemProps> = ({
           className="absolute top-4 right-4 text-black transform transition-transform duration-300 group-hover:rotate-45"
         />
         <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-all ease-in-out duration-400 [clip-path:circle(0%_at_100%_100%)] group-hover:[clip-path:circle(150%_at_100%_100%)]" />
-      </>
+      </div>
     );
   };
   
-  const handleItemClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    onClick();
+  const commonProps = {
+    variants: itemVariants,
+    className: `relative flex flex-col justify-between p-0 rounded-3xl overflow-hidden group border-2 border-black shadow-[4px_4px_0px_#000] hover:shadow-[8px_8px_0px_#000] transition-all duration-300 cursor-pointer ${colSpan} ${rowSpan} ${bgColor}`,
+    whileHover: { scale: 1.02, rotate: -1 },
+    whileTap: { scale: 0.98, rotate: 0 },
+    // FIX: Used `as const` to tell TypeScript that `type` is the literal 'spring', not a generic string.
+    transition: { type: 'spring' as const, stiffness: 300, damping: 20 },
+  };
+
+  if (isPublic) {
+    return (
+      <motion.a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        {...commonProps}
+      >
+        {content()}
+      </motion.a>
+    );
   }
 
   return (
     <motion.div
-      onClick={handleItemClick}
-      variants={itemVariants}
-      className={`relative flex flex-col justify-between p-0 rounded-3xl overflow-hidden group border-2 border-black shadow-[4px_4px_0px_#000] hover:shadow-[8px_8px_0px_#000] transition-all duration-300 cursor-pointer ${colSpan} ${rowSpan} ${bgColor}`}
-      whileHover={{ scale: 1.02, rotate: -1 }}
-      whileTap={{ scale: 0.98, rotate: 0 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+      onClick={onClick}
+      {...commonProps}
     >
       {content()}
     </motion.div>

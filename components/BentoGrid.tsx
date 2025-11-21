@@ -5,10 +5,11 @@ import BentoItem from './BentoItem';
 
 interface BentoGridProps {
   items: BentoItemData[];
-  onEditItem: (item: BentoItemData) => void;
+  onItemClick: (item: BentoItemData) => void;
+  isPublic?: boolean;
 }
 
-const BentoGrid: React.FC<BentoGridProps> = ({ items, onEditItem }) => {
+const BentoGrid: React.FC<BentoGridProps> = ({ items, onItemClick, isPublic = false }) => {
   const gridVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -29,8 +30,9 @@ const BentoGrid: React.FC<BentoGridProps> = ({ items, onEditItem }) => {
       {items.map((item) => (
         <BentoItem 
           key={item.id} 
-          {...item} 
-          onClick={() => onEditItem(item)} 
+          {...item}
+          isPublic={isPublic}
+          onClick={() => onItemClick(item)} 
         />
       ))}
     </motion.div>

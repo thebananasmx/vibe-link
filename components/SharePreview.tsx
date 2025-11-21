@@ -136,7 +136,7 @@ const SharePreview: React.FC<SharePreviewProps> = ({ vibeConfig, onBack, navigat
 
                   {/* Bento Grid Section */}
                   <div className="scale-[0.95]">
-                       <BentoGrid items={items} onEditItem={() => {}} />
+                       <BentoGrid items={items} onItemClick={() => {}} />
                   </div>
                  
                   {/* Footer */}
