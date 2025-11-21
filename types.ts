@@ -9,7 +9,7 @@ export interface UserProfile {
 
 export interface BentoItemData {
   id: number;
-  Icon?: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
+  iconKey: string; // Storing a string key instead of the component
   title: string;
   subtitle: string;
   href: string;

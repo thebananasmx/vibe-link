@@ -33,14 +33,14 @@ const layouts = [
 ] as const;
 
 const allItemsBank = [
-    { Icon: Music, title: 'Spotify Playlist', key: 'spotify', href: '#' },
-    { Icon: MessageCircle, title: 'WhatsApp', key: 'whatsapp', href: '#' },
-    { Icon: Twitter, title: 'Twitter / X', key: 'twitter', href: '#' },
-    { Icon: Github, title: 'GitHub', key: 'github', href: '#' },
-    { Icon: Linkedin, title: 'LinkedIn', key: 'linkedin', href: '#' },
-    { Icon: Sticker, title: 'Mi Sticker Pack', key: 'sticker', href: '#', type: 'sticker' },
-    { Icon: Mail, title: 'Contact Me', key: 'mail', href: '#' },
-    { Icon: Youtube, title: 'YouTube', key: 'youtube', href: '#' },
+    { title: 'Spotify Playlist', key: 'spotify', href: '#' },
+    { title: 'WhatsApp', key: 'whatsapp', href: '#' },
+    { title: 'Twitter / X', key: 'twitter', href: '#' },
+    { title: 'GitHub', key: 'github', href: '#' },
+    { title: 'LinkedIn', key: 'linkedin', href: '#' },
+    { title: 'Mi Sticker Pack', key: 'sticker', href: '#', type: 'sticker' },
+    { title: 'Contact Me', key: 'mail', href: '#' },
+    { title: 'YouTube', key: 'youtube', href: '#' },
 ] as const;
 
 const sarcasticSubtitles = {
@@ -93,13 +93,13 @@ export const generateNewVibe = (userInput: string) => {
     
     return {
       ...layoutConfig,
-      Icon: itemTemplate.Icon,
+      iconKey: itemTemplate.key, // Save the key, not the component
       type: layoutConfig.type || ('type' in itemTemplate && itemTemplate.type) || 'default',
       title: layoutConfig.type === 'profile' ? profile.name : itemTemplate.title,
       subtitle: layoutConfig.type === 'profile' ? "Your profile, with a cool CSS filter." : (subtitles.length > 0 ? getRandomItem(subtitles) : `Link to my ${itemTemplate.title}`),
       href: itemTemplate.href,
       bgColor: `bg-[${getRandomItem(selectedPalette)}]`,
-      img: layoutConfig.type === 'profile' ? profile.avatarUrl : undefined,
+      ...(layoutConfig.type === 'profile' && { img: profile.avatarUrl }),
     };
   });
 
