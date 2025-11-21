@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Toaster, toast } from 'react-hot-toast';
 import InputScreen from './screens/InputScreen';
 import LoadingScreen from './screens/LoadingScreen';
 import RevealScreen from './screens/RevealScreen';
@@ -132,6 +133,7 @@ const App: React.FC = () => {
     setUser(null);
     navigate('/');
     setAppState('input');
+    toast.success('Logged out successfully!');
   }
 
   const handleShuffle = () => {
@@ -202,6 +204,25 @@ const App: React.FC = () => {
 
   return (
     <div className="antialiased relative">
+      <Toaster 
+        position="top-center"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#F5EFE6',
+            color: '#1E1E1E',
+            border: '2px solid #000',
+            boxShadow: '4px 4px 0px #000',
+            fontWeight: 'bold',
+          },
+          success: {
+            icon: '✅',
+          },
+          error: {
+            icon: '❌',
+          },
+        }}
+      />
       <InfoBar />
       <Header user={user} onLogin={() => setIsHeaderAuthModalOpen(true)} onLogout={handleSignOut} />
       {renderContent()}

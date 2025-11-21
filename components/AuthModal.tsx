@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
+import { toast } from 'react-hot-toast';
 import { X } from 'lucide-react';
 import type firebase from 'firebase/compat/app';
 import { auth } from '../firebase';
@@ -18,12 +19,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSuccess, initialMode }
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null);
 
     try {
       if (mode === 'signup') {
@@ -36,21 +35,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSuccess, initialMode }
       const authError = err as firebase.auth.AuthError;
       switch (authError.code) {
         case 'auth/email-already-in-use':
-          setError('This email is already in use. Try logging in.');
+          toast.error('This email is already in use. Try logging in.');
           break;
         case 'auth/invalid-email':
-          setError('Please enter a valid email address.');
+          toast.error('Please enter a valid email address.');
           break;
         case 'auth/weak-password':
-          setError('Password should be at least 6 characters.');
+          toast.error('Password should be at least 6 characters.');
           break;
         case 'auth/user-not-found':
         case 'auth/wrong-password':
         case 'auth/invalid-credential':
-           setError('Invalid email or password.');
+           toast.error('Invalid email or password.');
            break;
         default:
-          setError('An unexpected error occurred. Please try again.');
+          toast.error('An unexpected error occurred. Please try again.');
       }
       console.error(authError);
     } finally {
@@ -59,7 +58,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSuccess, initialMode }
   };
 
   const toggleMode = () => {
-    setError(null);
     setMode(prev => prev === 'login' ? 'signup' : 'login');
   }
 
@@ -118,7 +116,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSuccess, initialMode }
                 className="w-full text-lg px-4 py-2 rounded-lg border-2 border-black bg-transparent focus:outline-none focus:ring-2 focus:ring-[#FB8500] transition-all duration-300"
               />
             </div>
-            {error && <p className="text-red-500 text-sm">{error}</p>}
             <button
               type="submit"
               disabled={isLoading}

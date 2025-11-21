@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { toast } from 'react-hot-toast';
 import type { BentoItemData } from '../types';
 import BentoGrid from '../components/BentoGrid';
 import EditModal from '../components/EditModal';
@@ -23,7 +24,6 @@ type SaveState = 'idle' | 'saving' | 'saved' | 'error';
 const RevealScreen: React.FC<RevealScreenProps> = ({ vibeConfig, user, onShuffle, onPublish, onUpdateItem, onUpdateConfig }) => {
   const [editingItem, setEditingItem] = useState<BentoItemData | null>(null);
   const [saveState, setSaveState] = useState<SaveState>('idle');
-  const [copied, setCopied] = useState(false);
 
   const { userProfile, items } = vibeConfig;
 
@@ -37,10 +37,12 @@ const RevealScreen: React.FC<RevealScreenProps> = ({ vibeConfig, user, onShuffle
     try {
       await db.collection("users").doc(user.uid).set(vibeConfig, { merge: true });
       setSaveState('saved');
+      toast.success('VibeLink saved!');
       setTimeout(() => setSaveState('idle'), 2000);
     } catch (error) {
       console.error("Failed to save VibeLink: ", error);
       setSaveState('error');
+      toast.error('Failed to save. Please try again.');
       setTimeout(() => setSaveState('idle'), 3000);
     }
   };
@@ -48,8 +50,7 @@ const RevealScreen: React.FC<RevealScreenProps> = ({ vibeConfig, user, onShuffle
   const handleCopyLink = () => {
     const url = `${window.location.origin}/${vibeConfig.slug}`;
     navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    toast.success('Link copied to clipboard!');
   }
 
   const SaveButtonContent = () => {
@@ -131,7 +132,7 @@ const RevealScreen: React.FC<RevealScreenProps> = ({ vibeConfig, user, onShuffle
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
         >
-            {copied ? <Check size={28} /> : <Copy size={28} />}
+            <Copy size={28} />
         </motion.button>
       </div>
 

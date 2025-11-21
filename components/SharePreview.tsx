@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { toast } from 'react-hot-toast';
 import type { VibeConfig } from '../types';
 import BentoGrid from './BentoGrid';
 import AuthModal from './AuthModal';
@@ -26,9 +27,7 @@ const createSlug = (name: string) => {
 
 const SharePreview: React.FC<SharePreviewProps> = ({ vibeConfig, onBack, navigate }) => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isUrlClaimed, setIsUrlClaimed] = useState(false);
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-  const [copied, setCopied] = useState(false);
 
   const { userProfile, items } = vibeConfig;
   const loggedInUser = auth.currentUser;
@@ -41,6 +40,7 @@ const SharePreview: React.FC<SharePreviewProps> = ({ vibeConfig, onBack, navigat
     if (!currentUser || !vibeConfig) {
         console.error("No user logged in or no vibe config available to save.");
         setSaveState('error');
+        toast.error('Something went wrong. Please try again.');
         return;
     }
 
@@ -76,29 +76,29 @@ const SharePreview: React.FC<SharePreviewProps> = ({ vibeConfig, onBack, navigat
         await batch.commit();
 
         setSaveState('saved');
-        setIsUrlClaimed(true);
+        toast.success('URL Claimed! Redirecting...');
         // Redirect to the new editor page
         setTimeout(() => navigate(`/edit/${slug}`), 1500);
 
     } catch (error) {
         console.error("Error claiming URL: ", error);
         setSaveState('error');
+        toast.error('Could not claim URL. Please try again.');
         setTimeout(() => setSaveState('idle'), 3000);
     }
   };
   
-    const handleCopyLink = () => {
+  const handleCopyLink = () => {
     if (!loggedInUser || !vibeConfig.slug) return;
     const url = `${window.location.origin}/${vibeConfig.slug}`;
     navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    toast.success('Link copied to clipboard!');
   };
 
 
   const getButtonContent = () => {
     if (loggedInUser) {
-       return copied ? <><Check size={20} /> Copied!</> : <><Copy size={20} /> Copy Link</>;
+       return <><Copy size={20} /> Copy Link</>;
     }
     
     switch(saveState) {
@@ -156,7 +156,7 @@ const SharePreview: React.FC<SharePreviewProps> = ({ vibeConfig, onBack, navigat
                   </button>
                   <button
                       onClick={() => loggedInUser ? handleCopyLink() : setIsAuthModalOpen(true)}
-                      disabled={saveState === 'saving' || isUrlClaimed}
+                      disabled={saveState === 'saving' || saveState === 'saved'}
                       className={`flex items-center justify-center gap-2 px-6 py-3 text-black font-bold text-lg rounded-xl border-2 border-black shadow-[4px_4px_0px_#000] transition-all duration-200 min-w-[200px] 
                       ${saveState === 'saved' ? 'bg-green-400 cursor-default' : 'bg-[#8ECAE6] hover:shadow-[6px_6px_0px_#000] active:shadow-[2px_2px_0px_#000] transform active:translate-x-[2px] active:translate-y-[2px]'} 
                       ${saveState === 'error' ? 'bg-red-400' : ''}
