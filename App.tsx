@@ -147,7 +147,9 @@ const App: React.FC = () => {
   };
 
   const handleBackToEdit = () => {
-    navigate(`/edit/${vibeConfig?.slug}`);
+    // For a new user, the URL hasn't changed from `/`.
+    // We just need to change the component state back to the editor view.
+    setAppState('reveal');
   }
 
   const handleUpdateItem = (updatedItem: BentoItemData) => {
