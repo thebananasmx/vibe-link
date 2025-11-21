@@ -1,0 +1,84 @@
+{
+  "infoBar": {
+    "message": "Now available in multiple languages!",
+    "language": "Language"
+  },
+  "inputScreen": {
+    "title": "Your Link-in-bio is boring. <br/> Fix it.",
+    "subtitle": "Stop using lists. Generate a page that reflects your true vibe.",
+    "placeholder": "Paste your Instagram or describe yourself (e.g., \"Gym, Crypto, Techno\")",
+    "button": "Generate Vibe",
+    "ariaLabel": "Social media handle or description"
+  },
+  "loadingScreen": {
+    "texts": [
+      "Analyzing your vibe...",
+      "Consulting the digital oracle...",
+      "Calibrating neobrutalism...",
+      "Assembling pixels with attitude...",
+      "Rolling the cosmic dice...",
+      "Cooking up something awesome..."
+    ]
+  },
+  "revealScreen": {
+    "footer": "Powered by VibeLink",
+    "shuffleAriaLabel": "Shuffle Vibe",
+    "publishAriaLabel": "Publish VibeLink"
+  },
+  "editModal": {
+    "title": "Edit Module",
+    "titleLabel": "Title",
+    "subtitleLabel": "Subtitle",
+    "cancelButton": "Cancel",
+    "saveButton": "Save",
+    "profileHelpText": "The profile module cannot be edited here."
+  },
+  "sharePreview": {
+    "title": "Almost there!",
+    "subtitle": "This is how your VibeLink will look. Perfect for your stories!",
+    "backButton": "Back to Edit",
+    "claimButton": "Claim URL"
+  },
+  "profile": {
+    "bio": "AI-generated description based on your vibe. Or something like that. I'm really just placeholder text.",
+    "subtitle": "Your profile, with a cool CSS filter."
+  },
+  "itemTitles": {
+    "spotify": "Spotify Playlist",
+    "whatsapp": "WhatsApp",
+    "twitter": "Twitter / X",
+    "github": "GitHub",
+    "linkedin": "LinkedIn",
+    "sticker": "My Sticker Pack",
+    "mail": "Contact Me",
+    "youtube": "YouTube",
+    "default": "Link to my {{title}}"
+  },
+  "sarcasticSubtitles": {
+    "spotify": [
+      "What I listen to so I don't cry", 
+      "Songs for my existential crisis", 
+      "My shrink recommended this playlist"
+    ],
+    "whatsapp": [
+      "Let's talk (if it's urgent)", 
+      "For meme emergencies only", 
+      "Send me a sticker, not a 'hi'"
+    ],
+    "twitter": [
+      "My worst takes, 280 characters at a time", 
+      "Unsolicited opinions on everything", 
+      "The reason I don't get hired"
+    ],
+    "github": [
+      "Where my code goes to die", 
+      "Projects I'll start... tomorrow", 
+      "Cemetery of half-baked ideas"
+    ],
+    "linkedin": [
+      "My boring corporate self", 
+      "Faking professionalism since 2018", 
+      "Let's connect and never talk"
+    ]
+  }
+}
