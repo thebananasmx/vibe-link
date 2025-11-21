@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import type { UserProfile, BentoItemData } from '../types';
+import type { BentoItemData } from '../types';
 import BentoGrid from '../components/BentoGrid';
 import EditModal from '../components/EditModal';
-import { RefreshCw, Upload, Save, Check, Loader2 } from 'lucide-react';
-// FIX: Using Firebase v8 compat types. Removed v9 modular imports.
-// FIX: Use 'firebase/compat/app' to get correct types for v8 compat mode.
+import { RefreshCw, Copy, Save, Check, AlertTriangle } from 'lucide-react';
 import type firebase from 'firebase/compat/app';
-import { auth, db } from '../firebase';
-import type { VibeConfig } from '../App';
+import { db } from '../firebase';
+import type { VibeConfig } from '../types';
+import CircleLoader from '../components/CircleLoader';
 
 interface RevealScreenProps {
   vibeConfig: VibeConfig;
-  // FIX: Use firebase.User type for v8.
   user: firebase.User | null;
   onShuffle: () => void;
   onPublish: () => void;
@@ -20,41 +18,58 @@ interface RevealScreenProps {
   onUpdateConfig: (config: VibeConfig) => void;
 }
 
-type SaveState = 'idle' | 'saving' | 'saved';
+type SaveState = 'idle' | 'saving' | 'saved' | 'error';
 
 const RevealScreen: React.FC<RevealScreenProps> = ({ vibeConfig, user, onShuffle, onPublish, onUpdateItem, onUpdateConfig }) => {
   const [editingItem, setEditingItem] = useState<BentoItemData | null>(null);
   const [saveState, setSaveState] = useState<SaveState>('idle');
+  const [copied, setCopied] = useState(false);
 
   const { userProfile, items } = vibeConfig;
 
   const handleSave = async () => {
     if (!user) {
-      // Should not happen if button is shown, but good practice
-      onPublish(); // Go to share flow to signup
+      onPublish();
       return;
     }
 
     setSaveState('saving');
     try {
-      // FIX: Use db.collection().doc().set() for v8.
       await db.collection("users").doc(user.uid).set(vibeConfig, { merge: true });
       setSaveState('saved');
-      setTimeout(() => setSaveState('idle'), 2000); // Reset after 2s
+      setTimeout(() => setSaveState('idle'), 2000);
     } catch (error) {
       console.error("Failed to save VibeLink: ", error);
-      setSaveState('idle'); // Reset on error
+      setSaveState('error');
+      setTimeout(() => setSaveState('idle'), 3000);
     }
   };
+  
+  const handleCopyLink = () => {
+    const url = `${window.location.origin}/${vibeConfig.slug}`;
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   const SaveButtonContent = () => {
     switch (saveState) {
         case 'saving':
-            return <Loader2 size={28} className="animate-spin" />;
+            return <CircleLoader />;
         case 'saved':
             return <Check size={28} />;
+        case 'error':
+            return <AlertTriangle size={28} />;
         default:
             return <Save size={28} />;
+    }
+  }
+
+  const getSaveButtonBg = () => {
+    switch(saveState) {
+      case 'saved': return 'bg-green-400';
+      case 'error': return 'bg-red-400';
+      default: return 'bg-white hover:shadow-[6px_6px_0px_#000] active:shadow-[2px_2px_0px_#000] transform active:translate-x-[2px] active:translate-y-[2px]';
     }
   }
 
@@ -92,9 +107,7 @@ const RevealScreen: React.FC<RevealScreenProps> = ({ vibeConfig, user, onShuffle
            <motion.button
               onClick={handleSave}
               disabled={saveState === 'saving'}
-              className={`w-16 h-16 flex items-center justify-center gap-2 text-black font-bold rounded-full border-2 border-black shadow-[4px_4px_0px_#000] transition-all duration-200
-                ${saveState === 'saved' ? 'bg-green-400' : 'bg-white hover:shadow-[6px_6px_0px_#000] active:shadow-[2px_2px_0px_#000] transform active:translate-x-[2px] active:translate-y-[2px]'}
-              `}
+              className={`w-16 h-16 flex items-center justify-center gap-2 text-black font-bold rounded-full border-2 border-black shadow-[4px_4px_0px_#000] transition-all duration-200 ${getSaveButtonBg()}`}
               aria-label="Save Vibe"
               whileHover={{ scale: saveState === 'idle' ? 1.1 : 1 }}
               whileTap={{ scale: saveState === 'idle' ? 0.9 : 1 }}
@@ -112,13 +125,13 @@ const RevealScreen: React.FC<RevealScreenProps> = ({ vibeConfig, user, onShuffle
             <RefreshCw size={28} />
         </motion.button>
         <motion.button
-            onClick={onPublish}
+            onClick={handleCopyLink}
             className="w-16 h-16 flex items-center justify-center gap-2 bg-[#8ECAE6] text-black font-bold rounded-full border-2 border-black shadow-[4px_4px_0px_#000] hover:shadow-[6px_6px_0px_#000] active:shadow-[2px_2px_0px_#000] transform active:translate-x-[2px] active:translate-y-[2px] transition-all duration-200"
-            aria-label="Publish VibeLink"
+            aria-label="Copy public link"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
         >
-            <Upload size={28} />
+            {copied ? <Check size={28} /> : <Copy size={28} />}
         </motion.button>
       </div>
 

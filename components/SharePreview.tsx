@@ -1,76 +1,112 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import type { UserProfile, BentoItemData } from '../types';
+import type { VibeConfig } from '../types';
 import BentoGrid from './BentoGrid';
 import AuthModal from './AuthModal';
-import { Download, Edit, Check, Loader2 } from 'lucide-react';
-// FIX: Using Firebase v8 compat API. Removed v9 modular imports.
+import { Edit, Check, Copy, AlertTriangle } from 'lucide-react';
 import { auth, db } from '../firebase';
-
-interface VibeConfig {
-  userProfile: UserProfile;
-  items: BentoItemData[];
-}
+import CircleLoader from './CircleLoader';
 
 interface SharePreviewProps {
   vibeConfig: VibeConfig;
   onBack: () => void;
+  navigate: (path: string) => void;
 }
 
-const SharePreview: React.FC<SharePreviewProps> = ({ vibeConfig, onBack }) => {
+// Simple slugify function
+const createSlug = (name: string) => {
+    return name
+        .toLowerCase()
+        .trim()
+        .replace(/^@/, '') // Remove leading @
+        .replace(/[^\w\s-]/g, '') // Remove non-word chars
+        .replace(/[\s_-]+/g, '-') //-
+        .replace(/^-+|-+$/g, '');
+};
+
+const SharePreview: React.FC<SharePreviewProps> = ({ vibeConfig, onBack, navigate }) => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isUrlClaimed, setIsUrlClaimed] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  
-  const { userProfile, items } = vibeConfig;
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [copied, setCopied] = useState(false);
 
-  // No-op edit function for preview
-  const handleDummyEdit = () => {};
+  const { userProfile, items } = vibeConfig;
+  const loggedInUser = auth.currentUser;
 
   const handleClaimSuccess = async () => {
     setIsAuthModalOpen(false);
-    setIsSaving(true);
+    setSaveState('saving');
     
     const currentUser = auth.currentUser;
     if (!currentUser || !vibeConfig) {
         console.error("No user logged in or no vibe config available to save.");
-        setIsSaving(false);
+        setSaveState('error');
         return;
     }
 
     try {
-        // Use the user's UID as the document ID
-        // FIX: Use db.collection().doc().set() for v8.
-        await db.collection("users").doc(currentUser.uid).set(vibeConfig);
+        let slug = createSlug(vibeConfig.userProfile.name);
+        
+        // Check for slug uniqueness
+        let slugExists = (await db.collection('slugs').doc(slug).get()).exists;
+        let attempts = 0;
+        while(slugExists && attempts < 5) {
+            const newSlug = `${slug}${Math.floor(Math.random() * 100)}`;
+            slugExists = (await db.collection('slugs').doc(newSlug).get()).exists;
+            if (!slugExists) {
+                slug = newSlug;
+            }
+            attempts++;
+        }
+
+        if (slugExists) {
+            throw new Error("Could not generate a unique slug.");
+        }
+
+        const finalVibeConfig: VibeConfig = { ...vibeConfig, slug };
+
+        // Use a batch write to make it atomic
+        const batch = db.batch();
+        const userRef = db.collection("users").doc(currentUser.uid);
+        const slugRef = db.collection("slugs").doc(slug);
+
+        batch.set(userRef, finalVibeConfig);
+        batch.set(slugRef, { uid: currentUser.uid });
+        
+        await batch.commit();
+
+        setSaveState('saved');
         setIsUrlClaimed(true);
+        // Redirect to the new editor page
+        setTimeout(() => navigate(`/edit/${slug}`), 1500);
+
     } catch (error) {
-        console.error("Error writing document: ", error);
-        // You could show an error message to the user here
-    } finally {
-        setIsSaving(false);
+        console.error("Error claiming URL: ", error);
+        setSaveState('error');
+        setTimeout(() => setSaveState('idle'), 3000);
     }
   };
+  
+    const handleCopyLink = () => {
+    if (!loggedInUser || !vibeConfig.slug) return;
+    const url = `${window.location.origin}/${vibeConfig.slug}`;
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
 
   const getButtonContent = () => {
-    if (isSaving) {
-      return (
-        <>
-          <Loader2 size={20} className="animate-spin" /> Saving...
-        </>
-      );
+    if (loggedInUser) {
+       return copied ? <><Check size={20} /> Copied!</> : <><Copy size={20} /> Copy Link</>;
     }
-    if (isUrlClaimed) {
-      return (
-        <>
-          <Check size={20} /> URL Claimed!
-        </>
-      );
+    
+    switch(saveState) {
+        case 'saving': return <><CircleLoader /> Saving...</>;
+        case 'saved': return <><Check size={20} /> URL Claimed!</>;
+        case 'error': return <><AlertTriangle size={20} /> Try Again</>;
+        default: return <>Claim URL</>;
     }
-    return (
-      <>
-        <Download size={20} /> Claim URL
-      </>
-    );
   };
 
   return (
@@ -100,7 +136,7 @@ const SharePreview: React.FC<SharePreviewProps> = ({ vibeConfig, onBack }) => {
 
                   {/* Bento Grid Section */}
                   <div className="scale-[0.95]">
-                       <BentoGrid items={items} onEditItem={handleDummyEdit} />
+                       <BentoGrid items={items} onEditItem={() => {}} />
                   </div>
                  
                   {/* Footer */}
@@ -119,13 +155,12 @@ const SharePreview: React.FC<SharePreviewProps> = ({ vibeConfig, onBack }) => {
                       <Edit size={20} /> Back to Edit
                   </button>
                   <button
-                      onClick={() => !isUrlClaimed && !isSaving && setIsAuthModalOpen(true)}
-                      disabled={isUrlClaimed || isSaving}
-                      className={`flex items-center justify-center gap-2 px-6 py-3 text-black font-bold text-lg rounded-xl border-2 border-black shadow-[4px_4px_0px_#000] transition-all duration-200 min-w-[200px] ${
-                        isUrlClaimed
-                          ? 'bg-green-400 cursor-default'
-                          : 'bg-[#8ECAE6] hover:shadow-[6px_6px_0px_#000] active:shadow-[2px_2px_0px_#000] transform active:translate-x-[2px] active:translate-y-[2px]'
-                      } ${isSaving ? 'bg-yellow-400 cursor-wait' : ''}`}
+                      onClick={() => loggedInUser ? handleCopyLink() : setIsAuthModalOpen(true)}
+                      disabled={saveState === 'saving' || isUrlClaimed}
+                      className={`flex items-center justify-center gap-2 px-6 py-3 text-black font-bold text-lg rounded-xl border-2 border-black shadow-[4px_4px_0px_#000] transition-all duration-200 min-w-[200px] 
+                      ${saveState === 'saved' ? 'bg-green-400 cursor-default' : 'bg-[#8ECAE6] hover:shadow-[6px_6px_0px_#000] active:shadow-[2px_2px_0px_#000] transform active:translate-x-[2px] active:translate-y-[2px]'} 
+                      ${saveState === 'error' ? 'bg-red-400' : ''}
+                      ${saveState === 'saving' ? 'bg-yellow-400 cursor-wait' : ''}`}
                   >
                     {getButtonContent()}
                   </button>

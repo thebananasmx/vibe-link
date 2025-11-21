@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
-import { X, Loader2 } from 'lucide-react';
-// FIX: Using Firebase v8 compat methods and types. Removed v9 modular imports.
-// FIX: Use 'firebase/compat/app' to get correct types for v8 compat mode.
+import { X } from 'lucide-react';
 import type firebase from 'firebase/compat/app';
 import { auth } from '../firebase';
+import CircleLoader from './CircleLoader';
 
 interface AuthModalProps {
   onClose: () => void;
@@ -28,19 +27,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSuccess, initialMode }
 
     try {
       if (mode === 'signup') {
-        // FIX: Use auth.createUserWithEmailAndPassword for v8.
         await auth.createUserWithEmailAndPassword(email, password);
       } else {
-        // FIX: Use auth.signInWithEmailAndPassword for v8.
         await auth.signInWithEmailAndPassword(email, password);
       }
-      // The onAuthStateChanged listener in App.tsx will handle the rest.
-      // We just need to signal success to close the modal.
       onSuccess();
     } catch (err) {
-      // FIX: Use firebase.auth.AuthError type for v8.
       const authError = err as firebase.auth.AuthError;
-      // Friendly error messages
       switch (authError.code) {
         case 'auth/email-already-in-use':
           setError('This email is already in use. Try logging in.');
@@ -131,7 +124,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSuccess, initialMode }
               disabled={isLoading}
               className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#8ECAE6] text-black font-bold text-lg rounded-xl border-2 border-black shadow-[4px_4px_0px_#000] hover:shadow-[6px_6px_0px_#000] active:shadow-[2px_2px_0px_#000] transform active:translate-x-[2px] active:translate-y-[2px] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? <Loader2 className="animate-spin" /> : (mode === 'signup' ? 'Sign Up' : 'Log In')}
+              {isLoading ? <CircleLoader /> : (mode === 'signup' ? 'Sign Up' : 'Log In')}
             </button>
           </form>
           <p className="text-center text-sm mt-4">

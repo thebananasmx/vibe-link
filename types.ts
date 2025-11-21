@@ -19,3 +19,9 @@ export interface BentoItemData {
   type?: 'default' | 'profile' | 'sticker';
   img?: string;
 }
+
+export interface VibeConfig {
+  slug: string;
+  userProfile: UserProfile;
+  items: BentoItemData[];
+}

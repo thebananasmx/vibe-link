@@ -2,76 +2,141 @@ import React, { useState, useEffect } from 'react';
 import InputScreen from './screens/InputScreen';
 import LoadingScreen from './screens/LoadingScreen';
 import RevealScreen from './screens/RevealScreen';
+import PublicProfileScreen from './screens/PublicProfileScreen';
 import SharePreview from './components/SharePreview';
 import InfoBar from './components/InfoBar';
 import Header from './components/Header';
 import AuthModal from './components/AuthModal';
 import { generateNewVibe } from './data/mockData';
 import type { UserProfile, BentoItemData } from './types';
-// FIX: Using Firebase v8 compat imports and types. Removed v9 modular imports.
-// FIX: Use 'firebase/compat/app' to get correct types for v8 compat mode.
 import type firebase from 'firebase/compat/app';
 import { auth, db } from './firebase';
 
-
-type AppState = 'input' | 'loading' | 'reveal' | 'share' | 'auth_loading';
+type AppState = 'input' | 'loading' | 'reveal' | 'share' | 'auth_loading' | 'public_profile';
 
 export interface VibeConfig {
+  slug: string;
   userProfile: UserProfile;
   items: BentoItemData[];
 }
+
+// A simple utility to navigate without page reloads
+const navigate = (path: string) => {
+  window.history.pushState({}, '', path);
+  // Dispatch a popstate event to make sure our App component re-renders with the new path
+  window.dispatchEvent(new PopStateEvent('popstate'));
+};
+
 
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>('auth_loading');
   const [vibeConfig, setVibeConfig] = useState<VibeConfig | null>(null);
   const [isHeaderAuthModalOpen, setIsHeaderAuthModalOpen] = useState(false);
-  // FIX: Use firebase.User type for v8.
   const [user, setUser] = useState<firebase.User | null>(null);
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  const [publicProfileData, setPublicProfileData] = useState<VibeConfig | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+  
 
   useEffect(() => {
-    // FIX: Use auth.onAuthStateChanged for v8.
+    // Listen to path changes from browser back/forward
+    const handlePopState = () => setCurrentPath(window.location.pathname);
+    window.addEventListener('popstate', handlePopState);
+    
+    // Auth state listener
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        // User is signed in, see if they have a VibeLink config
-        // FIX: Use db.collection().doc().get() for v8.
-        const docRef = db.collection("users").doc(currentUser.uid);
-        const docSnap = await docRef.get();
+      setUser(currentUser);
+      // After auth state is resolved, route the user
+      routeApp(currentUser);
+    });
 
-        if (docSnap.exists) {
-          // If they have data, load it and go to the editor
-          setVibeConfig(docSnap.data() as VibeConfig);
-          setAppState('reveal');
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      unsubscribe();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Re-route whenever the path changes
+    if(appState !== 'auth_loading') {
+       routeApp(user);
+    }
+  }, [currentPath]);
+
+  const routeApp = async (currentUser: firebase.User | null) => {
+    setProfileLoading(true);
+    const path = window.location.pathname;
+    const parts = path.split('/').filter(Boolean);
+
+    if (parts[0] === 'edit' && parts[1]) {
+      // Edit route: /edit/[slug]
+      if (currentUser) {
+        const userDoc = await db.collection('users').doc(currentUser.uid).get();
+        if (userDoc.exists) {
+          const userData = userDoc.data() as VibeConfig;
+          if (userData.slug === parts[1]) {
+            setVibeConfig(userData);
+            setAppState('reveal');
+          } else {
+            // Logged in, but trying to edit someone else's page
+            navigate(`/edit/${userData.slug}`); // Redirect to their own page
+          }
         } else {
-          // If they are new or haven't saved a vibe, go to input
+           // Logged in but no profile, send to create one
           setAppState('input');
         }
       } else {
-        // User is signed out
-        setUser(null);
-        setVibeConfig(null);
-        setAppState('input');
+        // Not logged in, trying to edit
+        navigate('/'); // Go home
+        setIsHeaderAuthModalOpen(true); // Prompt login
       }
-    });
-
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, []);
+    } else if (parts.length === 1 && parts[0] !== 'edit') {
+      // Public profile route: /[slug]
+      const slug = parts[0];
+      const slugDoc = await db.collection('slugs').doc(slug).get();
+      if (slugDoc.exists) {
+        const { uid } = slugDoc.data() as { uid: string };
+        const userDoc = await db.collection('users').doc(uid).get();
+        if(userDoc.exists) {
+            setPublicProfileData(userDoc.data() as VibeConfig);
+            setAppState('public_profile');
+        } else {
+             navigate('/'); // User for this slug was deleted
+        }
+      } else {
+        navigate('/'); // Slug not found
+      }
+    } else {
+      // Home route: /
+      setVibeConfig(null);
+      setAppState('input');
+    }
+     setProfileLoading(false);
+  };
 
 
   const handleGenerate = (input: string) => {
-    console.log(`Generating VibeLink for: ${input}`);
     setAppState('loading');
-
     setTimeout(() => {
-      setVibeConfig(generateNewVibe(input));
+      const newVibe = generateNewVibe(input);
+      // Temporarily set a vibe config to go to the preview/share screen
+      // The real config with slug will be created on signup
+      setVibeConfig({ ...newVibe, slug: '' });
       setAppState('reveal');
-    }, 3000); 
+    }, 2000); 
   };
+  
+  const handleSignOut = async () => {
+    await auth.signOut();
+    setVibeConfig(null);
+    setUser(null);
+    navigate('/');
+    setAppState('input');
+  }
 
   const handleShuffle = () => {
     if (vibeConfig) {
-      setVibeConfig(generateNewVibe(vibeConfig.userProfile.name));
+      setVibeConfig({ ...generateNewVibe(vibeConfig.userProfile.name), slug: vibeConfig.slug });
     }
   };
   
@@ -80,7 +145,7 @@ const App: React.FC = () => {
   };
 
   const handleBackToEdit = () => {
-    setAppState('reveal');
+    navigate(`/edit/${vibeConfig?.slug}`);
   }
 
   const handleUpdateItem = (updatedItem: BentoItemData) => {
@@ -98,20 +163,22 @@ const App: React.FC = () => {
 
   const handleLoginSuccess = () => {
     setIsHeaderAuthModalOpen(false);
-    // onAuthStateChanged will handle the rest
+    // onAuthStateChanged will handle routing
   };
 
 
   const renderContent = () => {
+    if (appState === 'auth_loading' || profileLoading) {
+      return <LoadingScreen />;
+    }
+
     switch (appState) {
-      case 'auth_loading':
-        return <LoadingScreen />;
       case 'input':
         return <InputScreen onGenerate={handleGenerate} />;
       case 'loading':
         return <LoadingScreen />;
       case 'reveal':
-        if (!vibeConfig) return <LoadingScreen />; // Fallback
+        if (!vibeConfig) return <LoadingScreen />;
         return (
             <RevealScreen 
                 vibeConfig={vibeConfig} 
@@ -123,8 +190,11 @@ const App: React.FC = () => {
             />
         );
       case 'share':
-        if (!vibeConfig) return <LoadingScreen />; // Fallback
-        return <SharePreview vibeConfig={vibeConfig} onBack={handleBackToEdit}/>;
+        if (!vibeConfig) return <LoadingScreen />;
+        return <SharePreview vibeConfig={vibeConfig} onBack={handleBackToEdit} navigate={navigate} />;
+      case 'public_profile':
+        if(!publicProfileData) return <LoadingScreen />;
+        return <PublicProfileScreen vibeConfig={publicProfileData} />;
       default:
         return <InputScreen onGenerate={handleGenerate} />;
     }
@@ -133,7 +203,7 @@ const App: React.FC = () => {
   return (
     <div className="antialiased relative">
       <InfoBar />
-      {appState === 'input' && !user && <Header onLogin={() => setIsHeaderAuthModalOpen(true)} />}
+      <Header user={user} onLogin={() => setIsHeaderAuthModalOpen(true)} onLogout={handleSignOut} />
       {renderContent()}
        {isHeaderAuthModalOpen && (
         <AuthModal
