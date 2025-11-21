@@ -4,6 +4,7 @@ import InputScreen from './screens/InputScreen';
 import LoadingScreen from './screens/LoadingScreen';
 import RevealScreen from './screens/RevealScreen';
 import PublicProfileScreen from './screens/PublicProfileScreen';
+import EditorScreen from './screens/EditorScreen';
 import SharePreview from './components/SharePreview';
 import InfoBar from './components/InfoBar';
 import Header from './components/Header';
@@ -13,7 +14,7 @@ import type { UserProfile, BentoItemData } from './types';
 import type firebase from 'firebase/compat/app';
 import { auth, db } from './firebase';
 
-type AppState = 'input' | 'loading' | 'reveal' | 'share' | 'auth_loading' | 'public_profile';
+type AppState = 'input' | 'loading' | 'reveal' | 'share' | 'auth_loading' | 'public_profile' | 'editor';
 
 export interface VibeConfig {
   slug: string;
@@ -77,7 +78,7 @@ const App: React.FC = () => {
           const userData = userDoc.data() as VibeConfig;
           if (userData.slug === parts[1]) {
             setVibeConfig(userData);
-            setAppState('reveal');
+            setAppState('editor');
           } else {
             // Logged in, but trying to edit someone else's page
             navigate(`/edit/${userData.slug}`); // Redirect to their own page
@@ -191,6 +192,17 @@ const App: React.FC = () => {
                 onUpdateItem={handleUpdateItem}
                 onUpdateConfig={handleUpdateConfig}
                 user={user}
+            />
+        );
+      case 'editor':
+        if (!vibeConfig) return <LoadingScreen />;
+        return (
+            <EditorScreen
+                vibeConfig={vibeConfig}
+                user={user}
+                onShuffle={handleShuffle}
+                onUpdateItem={handleUpdateItem}
+                onUpdateConfig={handleUpdateConfig}
             />
         );
       case 'share':
