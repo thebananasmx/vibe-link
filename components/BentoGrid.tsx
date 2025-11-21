@@ -14,7 +14,7 @@ const BentoGrid: React.FC<BentoGridProps> = ({ items, onEditItem }) => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
+        staggerChildren: 0.07,
       },
     },
   };

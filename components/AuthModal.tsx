@@ -12,13 +12,14 @@ import { auth } from '../firebase';
 interface AuthModalProps {
   onClose: () => void;
   onSuccess: () => void;
+  initialMode?: AuthMode;
 }
 
 type AuthMode = 'login' | 'signup';
 
-const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSuccess }) => {
+const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSuccess, initialMode }) => {
   const { t } = useTranslation();
-  const [mode, setMode] = useState<AuthMode>('signup');
+  const [mode, setMode] = useState<AuthMode>(initialMode || 'signup');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);

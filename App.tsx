@@ -4,6 +4,8 @@ import LoadingScreen from './screens/LoadingScreen';
 import RevealScreen from './screens/RevealScreen';
 import SharePreview from './components/SharePreview';
 import InfoBar from './components/InfoBar';
+import Header from './components/Header';
+import AuthModal from './components/AuthModal';
 import { generateNewVibe } from './data/mockData';
 import type { UserProfile, BentoItemData } from './types';
 
@@ -17,6 +19,7 @@ export interface VibeConfig {
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>('input');
   const [vibeConfig, setVibeConfig] = useState<VibeConfig | null>(null);
+  const [isHeaderAuthModalOpen, setIsHeaderAuthModalOpen] = useState(false);
 
   const handleGenerate = (input: string) => {
     console.log(`Generating VibeLink for: ${input}`);
@@ -51,6 +54,13 @@ const App: React.FC = () => {
     }
   };
 
+  const handleLoginSuccess = () => {
+    setIsHeaderAuthModalOpen(false);
+    // As we don't have a database, we generate a new vibe for the "logged in" user.
+    setVibeConfig(generateNewVibe('Welcome Back!')); 
+    setAppState('reveal');
+  };
+
 
   const renderContent = () => {
     switch (appState) {
@@ -77,9 +87,17 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="antialiased">
+    <div className="antialiased relative">
       <InfoBar />
+      {appState === 'input' && <Header onLogin={() => setIsHeaderAuthModalOpen(true)} />}
       {renderContent()}
+       {isHeaderAuthModalOpen && (
+        <AuthModal
+          initialMode="login"
+          onClose={() => setIsHeaderAuthModalOpen(false)}
+          onSuccess={handleLoginSuccess}
+        />
+      )}
     </div>
   );
 };

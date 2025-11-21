@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import type { BentoItemData } from '../types';
 import { ArrowUpRight } from 'lucide-react';
 
@@ -20,9 +20,19 @@ const BentoItem: React.FC<BentoItemProps> = ({
   img,
   onClick,
 }) => {
-  const itemVariants = {
+  // FIX: Explicitly type itemVariants with Variants to fix type inference issue with transition.type
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 50, scale: 0.8 },
-    visible: { opacity: 1, y: 0, scale: 1 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1,
+      transition: {
+        type: 'spring',
+        stiffness: 260,
+        damping: 25,
+      }
+    },
   };
 
   const content = () => {
