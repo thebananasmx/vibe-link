@@ -1,5 +1,4 @@
 import type { UserProfile, BentoItemData } from '../types';
-import { TFunction } from 'i18next';
 import { Twitter, Github, Linkedin, Dribbble, Twitch, Youtube, Rss, Mail, Music, MessageCircle, Sticker } from 'lucide-react';
 
 const colorPalettes = [
@@ -10,7 +9,6 @@ const colorPalettes = [
 ];
 
 const layouts = [
-  // Layout 1: Perfil grande
   [
     { id: 1, type: 'profile', colSpan: 'md:col-span-2', rowSpan: 'md:row-span-2' },
     { id: 2, colSpan: 'md:col-span-1', rowSpan: 'md:row-span-1' },
@@ -18,7 +16,6 @@ const layouts = [
     { id: 4, colSpan: 'md:col-span-1', rowSpan: 'md:row-span-1' },
     { id: 5, colSpan: 'md:col-span-2', rowSpan: 'md:row-span-1' },
   ],
-  // Layout 2: Columna central dominante
   [
     { id: 1, colSpan: 'md:col-span-1', rowSpan: 'md:row-span-1' },
     { id: 2, type: 'profile', colSpan: 'md:col-span-1', rowSpan: 'md:row-span-2' },
@@ -26,7 +23,6 @@ const layouts = [
     { id: 4, colSpan: 'md:col-span-1', rowSpan: 'md:row-span-1' },
     { id: 5, colSpan: 'md:col-span-2', rowSpan: 'md:row-span-1' },
   ],
-    // Layout 3: Foco en la primera fila
   [
     { id: 1, colSpan: 'md:col-span-2', rowSpan: 'md:row-span-1' },
     { id: 2, colSpan: 'md:col-span-1', rowSpan: 'md:row-span-1' },
@@ -43,19 +39,46 @@ const allItemsBank = [
     { Icon: Github, title: 'GitHub', key: 'github', href: '#' },
     { Icon: Linkedin, title: 'LinkedIn', key: 'linkedin', href: '#' },
     { Icon: Sticker, title: 'Mi Sticker Pack', key: 'sticker', href: '#', type: 'sticker' },
-    { Icon: Mail, title: 'Contáctame', key: 'mail', href: '#' },
+    { Icon: Mail, title: 'Contact Me', key: 'mail', href: '#' },
     { Icon: Youtube, title: 'YouTube', key: 'youtube', href: '#' },
 ] as const;
 
-// FIX: Update function to accept readonly arrays to handle 'as const' types. This resolves the error on line 61.
+const sarcasticSubtitles = {
+    spotify: [
+      "What I listen to so I don't cry", 
+      "Songs for my existential crisis", 
+      "My shrink recommended this playlist"
+    ],
+    whatsapp: [
+      "Let's talk (if it's urgent)", 
+      "For meme emergencies only", 
+      "Send me a sticker, not a 'hi'"
+    ],
+    twitter: [
+      "My worst takes, 280 characters at a time", 
+      "Unsolicited opinions on everything", 
+      "The reason I don't get hired"
+    ],
+    github: [
+      "Where my code goes to die", 
+      "Projects I'll start... tomorrow", 
+      "Cemetery of half-baked ideas"
+    ],
+    linkedin: [
+      "My boring corporate self", 
+      "Faking professionalism since 2018", 
+      "Let's connect and never talk"
+    ]
+};
+
 const getRandomItem = <T>(arr: readonly T[]): T => arr[Math.floor(Math.random() * arr.length)];
 const shuffleArray = <T>(arr: T[]): T[] => arr.sort(() => 0.5 - Math.random());
 
-export const generateNewVibe = (userInput: string, t: TFunction) => {
+export const generateNewVibe = (userInput: string) => {
   const profile: UserProfile = {
     name: userInput.startsWith('@') ? userInput : `@${userInput.split(' ')[0]}`,
     avatarUrl: `https://picsum.photos/seed/${userInput}/200`,
-    bio: t('profile.bio'),
+    bio: "AI-generated description based on your vibe. Or something like that. I'm really just placeholder text.",
   };
 
   const selectedPalette = getRandomItem(colorPalettes);
@@ -64,16 +87,16 @@ export const generateNewVibe = (userInput: string, t: TFunction) => {
 
   const bentoItems: BentoItemData[] = selectedLayout.map((layoutConfig, index) => {
     const itemTemplate = shuffledItemsBank[index % shuffledItemsBank.length];
-    const subtitleKey = `sarcasticSubtitles.${itemTemplate.key}`;
-    const subtitles = t(subtitleKey, { returnObjects: true }) as string[] || [];
+    
+    // @ts-ignore
+    const subtitles = sarcasticSubtitles[itemTemplate.key] || [];
     
     return {
       ...layoutConfig,
       Icon: itemTemplate.Icon,
-      // FIX: Safely access the optional 'type' property on itemTemplate using a type guard. This resolves the error on line 72.
       type: layoutConfig.type || ('type' in itemTemplate && itemTemplate.type) || 'default',
-      title: layoutConfig.type === 'profile' ? profile.name : t(`itemTitles.${itemTemplate.key}`),
-      subtitle: layoutConfig.type === 'profile' ? t('profile.subtitle') : (subtitles.length > 0 ? getRandomItem(subtitles) : t('itemTitles.default', { title: itemTemplate.title })),
+      title: layoutConfig.type === 'profile' ? profile.name : itemTemplate.title,
+      subtitle: layoutConfig.type === 'profile' ? "Your profile, with a cool CSS filter." : (subtitles.length > 0 ? getRandomItem(subtitles) : `Link to my ${itemTemplate.title}`),
       href: itemTemplate.href,
       bgColor: `bg-[${getRandomItem(selectedPalette)}]`,
       img: layoutConfig.type === 'profile' ? profile.avatarUrl : undefined,

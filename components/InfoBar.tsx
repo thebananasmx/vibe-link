@@ -1,25 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Globe, X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 const InfoBar: React.FC = () => {
-  const { t, i18n } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const isDismissed = localStorage.getItem('infoBarDismissed');
-    if (!isDismissed) {
+    const consent = localStorage.getItem('cookieConsent');
+    if (!consent) {
       setIsVisible(true);
     }
   }, []);
 
-  const handleDismiss = () => {
+  const handleConsent = (consent: 'accepted' | 'declined') => {
     setIsVisible(false);
-    localStorage.setItem('infoBarDismissed', 'true');
-  };
-
-  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    i18n.changeLanguage(e.target.value);
+    localStorage.setItem('cookieConsent', consent);
   };
 
   if (!isVisible) {
@@ -27,24 +21,27 @@ const InfoBar: React.FC = () => {
   }
 
   return (
-    <div className="bg-black text-white p-3 flex items-center justify-center text-center text-sm relative">
-      <p className="hidden sm:block mr-4">{t('infoBar.message')}</p>
-      <div className="flex items-center gap-2">
-        <Globe size={16} />
-        <label htmlFor="language-select" className="sr-only">{t('infoBar.language')}</label>
-        <select
-          id="language-select"
-          value={i18n.language}
-          onChange={handleLanguageChange}
-          className="bg-black border border-gray-600 rounded-md p-1 text-xs focus:outline-none focus:ring-1 focus:ring-white"
+    <div className="bg-black text-white p-3 flex flex-col sm:flex-row items-center justify-center text-center text-sm relative gap-4">
+      <p>
+        We use cookies to improve your experience. By using our site, you agree to our use of cookies.
+      </p>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => handleConsent('declined')}
+          className="px-4 py-1 bg-gray-700 text-white font-semibold rounded-md hover:bg-gray-600 transition-colors text-xs"
         >
-          <option value="en">English</option>
-          <option value="es">Español</option>
-        </select>
+          Decline
+        </button>
+        <button
+          onClick={() => handleConsent('accepted')}
+          className="px-4 py-1 bg-white text-black font-semibold rounded-md hover:bg-gray-200 transition-colors text-xs"
+        >
+          Accept
+        </button>
       </div>
       <button
-        onClick={handleDismiss}
-        className="absolute right-4 p-1 rounded-full hover:bg-white/20 transition-colors"
+        onClick={() => handleConsent('declined')}
+        className="absolute top-1/2 right-4 -translate-y-1/2 p-1 rounded-full hover:bg-white/20 transition-colors"
         aria-label="Dismiss"
       >
         <X size={18} />

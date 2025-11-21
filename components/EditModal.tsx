@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-// FIX: Import 'Variants' type from framer-motion to correctly type the animation variants.
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import type { BentoItemData } from '../types';
 import { X } from 'lucide-react';
@@ -12,7 +10,6 @@ interface EditModalProps {
 }
 
 const EditModal: React.FC<EditModalProps> = ({ item, onClose, onSave }) => {
-  const { t } = useTranslation();
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
 
@@ -35,7 +32,6 @@ const EditModal: React.FC<EditModalProps> = ({ item, onClose, onSave }) => {
     visible: { opacity: 1 },
   };
 
-  // FIX: Apply the 'Variants' type to ensure the 'transition' property is correctly typed.
   const modalVariants: Variants = {
     hidden: { opacity: 0, y: 50, scale: 0.9 },
     visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 30 } },
@@ -62,14 +58,14 @@ const EditModal: React.FC<EditModalProps> = ({ item, onClose, onSave }) => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold">{t('editModal.title')}</h2>
+              <h2 className="text-2xl font-bold">Edit Module</h2>
               <button onClick={onClose} className="p-1 rounded-full hover:bg-black/10 transition-colors">
                 <X size={24} />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <label htmlFor="title" className="block text-sm font-bold mb-1">{t('editModal.titleLabel')}</label>
+                <label htmlFor="title" className="block text-sm font-bold mb-1">Title</label>
                 <input
                   id="title"
                   type="text"
@@ -80,7 +76,7 @@ const EditModal: React.FC<EditModalProps> = ({ item, onClose, onSave }) => {
                 />
               </div>
               <div>
-                <label htmlFor="subtitle" className="block text-sm font-bold mb-1">{t('editModal.subtitleLabel')}</label>
+                <label htmlFor="subtitle" className="block text-sm font-bold mb-1">Subtitle</label>
                 <input
                   id="subtitle"
                   type="text"
@@ -96,17 +92,17 @@ const EditModal: React.FC<EditModalProps> = ({ item, onClose, onSave }) => {
                 onClick={onClose}
                 className="px-6 py-2 bg-gray-200 text-black font-bold rounded-lg border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[4px_4px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all duration-200"
               >
-                {t('editModal.cancelButton')}
+                Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={isProfile}
                 className="px-6 py-2 bg-[#8ECAE6] text-black font-bold rounded-lg border-2 border-black shadow-[2px_2px_0px_#000] hover:shadow-[4px_4px_0px_#000] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all duration-200 disabled:opacity-50"
               >
-                {t('editModal.saveButton')}
+                Save
               </button>
             </div>
-             {isProfile && <p className="text-xs text-center mt-4 text-gray-500">{t('editModal.profileHelpText')}</p>}
+             {isProfile && <p className="text-xs text-center mt-4 text-gray-500">The profile module cannot be edited here.</p>}
           </motion.div>
         </motion.div>
       )}

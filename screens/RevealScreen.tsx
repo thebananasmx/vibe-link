@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
 import type { UserProfile, BentoItemData } from '../types';
 import BentoGrid from '../components/BentoGrid';
 import EditModal from '../components/EditModal';
@@ -19,7 +18,6 @@ interface RevealScreenProps {
 }
 
 const RevealScreen: React.FC<RevealScreenProps> = ({ vibeConfig, onShuffle, onPublish, onUpdateItem }) => {
-  const { t } = useTranslation();
   const [editingItem, setEditingItem] = useState<BentoItemData | null>(null);
 
   const { userProfile, items } = vibeConfig;
@@ -48,7 +46,7 @@ const RevealScreen: React.FC<RevealScreenProps> = ({ vibeConfig, onShuffle, onPu
 
         {/* Footer */}
         <footer className="text-center py-6 mt-8 text-gray-500/80 text-sm">
-            <p>{t('revealScreen.footer')}</p>
+            <p>Powered by VibeLink</p>
         </footer>
       </main>
 
@@ -57,7 +55,7 @@ const RevealScreen: React.FC<RevealScreenProps> = ({ vibeConfig, onShuffle, onPu
          <motion.button
             onClick={onShuffle}
             className="w-16 h-16 flex items-center justify-center gap-2 bg-[#FFB703] text-black font-bold rounded-full border-2 border-black shadow-[4px_4px_0px_#000] hover:shadow-[6px_6px_0px_#000] active:shadow-[2px_2px_0px_#000] transform active:translate-x-[2px] active:translate-y-[2px] transition-all duration-200"
-            aria-label={t('revealScreen.shuffleAriaLabel')}
+            aria-label="Shuffle Vibe"
             whileHover={{ rotate: 45 }}
             whileTap={{ scale: 0.9 }}
         >
@@ -66,7 +64,7 @@ const RevealScreen: React.FC<RevealScreenProps> = ({ vibeConfig, onShuffle, onPu
         <motion.button
             onClick={onPublish}
             className="w-16 h-16 flex items-center justify-center gap-2 bg-[#8ECAE6] text-black font-bold rounded-full border-2 border-black shadow-[4px_4px_0px_#000] hover:shadow-[6px_6px_0px_#000] active:shadow-[2px_2px_0px_#000] transform active:translate-x-[2px] active:translate-y-[2px] transition-all duration-200"
-            aria-label={t('revealScreen.publishAriaLabel')}
+            aria-label="Publish VibeLink"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
         >

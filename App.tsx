@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import InputScreen from './screens/InputScreen';
 import LoadingScreen from './screens/LoadingScreen';
 import RevealScreen from './screens/RevealScreen';
@@ -16,7 +15,6 @@ export interface VibeConfig {
 }
 
 const App: React.FC = () => {
-  const { t } = useTranslation();
   const [appState, setAppState] = useState<AppState>('input');
   const [vibeConfig, setVibeConfig] = useState<VibeConfig | null>(null);
 
@@ -25,14 +23,14 @@ const App: React.FC = () => {
     setAppState('loading');
 
     setTimeout(() => {
-      setVibeConfig(generateNewVibe(input, t));
+      setVibeConfig(generateNewVibe(input));
       setAppState('reveal');
     }, 3000); 
   };
 
   const handleShuffle = () => {
     if (vibeConfig) {
-      setVibeConfig(generateNewVibe(vibeConfig.userProfile.name, t));
+      setVibeConfig(generateNewVibe(vibeConfig.userProfile.name));
     }
   };
   

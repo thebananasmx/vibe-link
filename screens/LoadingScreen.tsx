@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
 
 const Cube = () => (
   <motion.div 
@@ -33,8 +32,14 @@ const Cube = () => (
 
 
 const LoadingScreen: React.FC = () => {
-  const { t } = useTranslation();
-  const loadingTexts = t('loadingScreen.texts', { returnObjects: true }) as string[];
+  const loadingTexts = [
+      "Analyzing your vibe...",
+      "Consulting the digital oracle...",
+      "Calibrating neobrutalism...",
+      "Assembling pixels with attitude...",
+      "Rolling the cosmic dice...",
+      "Cooking up something awesome..."
+    ];
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
