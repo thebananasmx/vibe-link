@@ -7,6 +7,8 @@ import AuthModal from './AuthModal';
 import { Edit, Check, Copy, AlertTriangle } from 'lucide-react';
 import { auth, db } from '../firebase';
 import CircleLoader from './CircleLoader';
+import type firebase from 'firebase/compat/app';
+
 
 interface SharePreviewProps {
   vibeConfig: VibeConfig;
@@ -32,11 +34,10 @@ const SharePreview: React.FC<SharePreviewProps> = ({ vibeConfig, onBack, navigat
   const { userProfile, items } = vibeConfig;
   const loggedInUser = auth.currentUser;
 
-  const handleClaimSuccess = async () => {
+  const handleClaimSuccess = async (currentUser: firebase.User) => {
     setIsAuthModalOpen(false);
     setSaveState('saving');
     
-    const currentUser = auth.currentUser;
     if (!currentUser || !vibeConfig) {
         console.error("No user logged in or no vibe config available to save.");
         setSaveState('error');

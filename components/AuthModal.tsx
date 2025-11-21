@@ -8,7 +8,7 @@ import CircleLoader from './CircleLoader';
 
 interface AuthModalProps {
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (user: firebase.User) => void;
   initialMode?: AuthMode;
 }
 
@@ -25,12 +25,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSuccess, initialMode }
     setIsLoading(true);
 
     try {
-      if (mode === 'signup') {
-        await auth.createUserWithEmailAndPassword(email, password);
+      const userCredential = mode === 'signup'
+        ? await auth.createUserWithEmailAndPassword(email, password)
+        : await auth.signInWithEmailAndPassword(email, password);
+      
+      if (userCredential.user) {
+        onSuccess(userCredential.user);
       } else {
-        await auth.signInWithEmailAndPassword(email, password);
+        toast.error('Authentication failed. Please try again.');
       }
-      onSuccess();
     } catch (err) {
       const authError = err as firebase.auth.AuthError;
       switch (authError.code) {
@@ -88,7 +91,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSuccess, initialMode }
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">{mode === 'signup' ? 'Sign Up to Claim' : 'Log In to Claim'}</h2>
+            <h2 className="text-2xl font-bold">{mode === 'signup' ? 'Sign Up to Claim' : 'Log In'}</h2>
             <button onClick={onClose} className="p-1 rounded-full hover:bg-black/10 transition-colors" disabled={isLoading}>
               <X size={24} />
             </button>

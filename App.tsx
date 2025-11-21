@@ -95,18 +95,33 @@ const App: React.FC = () => {
     } else if (parts[0] === 'view' && parts[1]) {
       // Public profile route: /view/[slug]
       const slug = parts[1];
-      const slugDoc = await db.collection('slugs').doc(slug).get();
-      if (slugDoc.exists) {
-        const { uid } = slugDoc.data() as { uid: string };
-        const userDoc = await db.collection('users').doc(uid).get();
-        if(userDoc.exists) {
-            setPublicProfileData(userDoc.data() as VibeConfig);
-            setAppState('public_profile');
+      try {
+        const slugDoc = await db.collection('slugs').doc(slug).get();
+        if (slugDoc.exists) {
+          const slugData = slugDoc.data();
+          const uid = slugData?.uid; // Safely access uid
+
+          if (uid) {
+            const userDoc = await db.collection('users').doc(uid).get();
+            if(userDoc.exists) {
+                setPublicProfileData(userDoc.data() as VibeConfig);
+                setAppState('public_profile');
+            } else {
+                 toast.error('This VibeLink profile no longer exists.');
+                 navigate('/'); // User for this slug was deleted
+            }
+          } else {
+            toast.error('This VibeLink is misconfigured.');
+            navigate('/');
+          }
         } else {
-             navigate('/'); // User for this slug was deleted
+          toast.error('This VibeLink does not exist.');
+          navigate('/'); // Slug not found
         }
-      } else {
-        navigate('/'); // Slug not found
+      } catch (error) {
+        console.error("Error fetching public profile:", error);
+        toast.error('Sorry, we could not load this VibeLink.');
+        navigate('/');
       }
     } else if (parts.length === 1 && !['edit', 'view'].includes(parts[0])) {
       // Old public profile route: /[slug] -> redirect to /view/[slug]
@@ -169,9 +184,28 @@ const App: React.FC = () => {
     setVibeConfig(newConfig);
   }
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = async (user: firebase.User) => {
     setIsHeaderAuthModalOpen(false);
-    // onAuthStateChanged will handle routing
+    setProfileLoading(true);
+    try {
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        const userData = userDoc.data() as VibeConfig;
+        // The routeApp logic will handle setting the state when the path changes
+        navigate(`/edit/${userData.slug}`); 
+      } else {
+        // User exists but has no profile, send to create one
+        toast('Welcome! Create your VibeLink to get started.');
+        navigate('/');
+        setAppState('input');
+      }
+    } catch (error) {
+        console.error("Error fetching user profile after login:", error);
+        toast.error("Could not load your profile. Please try again.");
+        navigate('/');
+    } finally {
+        setProfileLoading(false);
+    }
   };
 
 
