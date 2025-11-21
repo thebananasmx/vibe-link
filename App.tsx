@@ -125,6 +125,7 @@ const App: React.FC = () => {
       }
     } else if (parts.length === 1 && !['edit', 'view'].includes(parts[0])) {
       // Old public profile route: /[slug] -> redirect to /view/[slug]
+      setAppState('loading');
       navigate(`/view/${parts[0]}`);
     } else {
       // Home route: /
