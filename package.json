@@ -11,8 +11,8 @@
   "dependencies": {
     "lucide-react": "^0.554.0",
     "framer-motion": "^12.23.24",
-    "react-dom": "^19.2.0",
-    "react": "^19.2.0",
+    "react-dom": "^18.2.0",
+    "react": "^18.2.0",
     "react-hot-toast": "^2.4.1",
     "firebase": "^12.6.0"
   },

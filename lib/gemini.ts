@@ -1,7 +1,18 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { UserProfile, BentoItemData } from '../types';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Use a singleton pattern for the AI client to defer initialization until it's first used.
+// This prevents the app from crashing on load if the API key is not yet available.
+const getAi = (() => {
+  let ai: GoogleGenAI | null = null;
+  return () => {
+    if (!ai) {
+      ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    }
+    return ai;
+  };
+})();
+
 
 const availableIcons = ['twitter', 'github', 'linkedin', 'dribbble', 'twitch', 'youtube', 'rss', 'mail', 'spotify', 'whatsapp', 'sticker'];
 
@@ -32,6 +43,7 @@ const layouts = [
 
 export const generateVibeWithGemini = async (userInput: string): Promise<{ userProfile: UserProfile; items: BentoItemData[] } | null> => {
     try {
+        const ai = getAi();
         const responseSchema = {
             type: Type.OBJECT,
             properties: {
