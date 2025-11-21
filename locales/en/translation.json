@@ -37,7 +37,20 @@
     "title": "Almost there!",
     "subtitle": "This is how your VibeLink will look. Perfect for your stories!",
     "backButton": "Back to Edit",
-    "claimButton": "Claim URL"
+    "claimButton": "Claim URL",
+    "claimedButton": "URL Claimed!"
+  },
+  "authModal": {
+    "loginTitle": "Log In to Claim",
+    "signupTitle": "Sign Up to Claim",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "loginButton": "Log In",
+    "signupButton": "Sign Up",
+    "noAccountPrompt": "Don't have an account?",
+    "switchToSignup": "Sign Up",
+    "hasAccountPrompt": "Already have an account?",
+    "switchToLogin": "Log In"
   },
   "profile": {
     "bio": "AI-generated description based on your vibe. Or something like that. I'm really just placeholder text.",

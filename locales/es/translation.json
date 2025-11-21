@@ -37,7 +37,20 @@
     "title": "¡Casi listo!",
     "subtitle": "Así se verá tu VibeLink. ¡Perfecto para tus historias!",
     "backButton": "Volver a Editar",
-    "claimButton": "Reclamar URL"
+    "claimButton": "Reclamar URL",
+    "claimedButton": "¡URL Reclamada!"
+  },
+  "authModal": {
+    "loginTitle": "Inicia Sesión para Reclamar",
+    "signupTitle": "Regístrate para Reclamar",
+    "emailLabel": "Correo Electrónico",
+    "passwordLabel": "Contraseña",
+    "loginButton": "Iniciar Sesión",
+    "signupButton": "Registrarse",
+    "noAccountPrompt": "¿No tienes una cuenta?",
+    "switchToSignup": "Regístrate",
+    "hasAccountPrompt": "¿Ya tienes una cuenta?",
+    "switchToLogin": "Inicia Sesión"
   },
   "profile": {
     "bio": "Descripción generada por IA basada en tu vibra. O algo así. Realmente solo soy texto de relleno.",
