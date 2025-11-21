@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { X, Loader2 } from 'lucide-react';
 // FIX: Using Firebase v8 compat methods and types. Removed v9 modular imports.
-import type firebase from 'firebase/app';
+// FIX: Use 'firebase/compat/app' to get correct types for v8 compat mode.
+import type firebase from 'firebase/compat/app';
 import { auth } from '../firebase';
 
 interface AuthModalProps {

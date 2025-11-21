@@ -9,7 +9,8 @@ import AuthModal from './components/AuthModal';
 import { generateNewVibe } from './data/mockData';
 import type { UserProfile, BentoItemData } from './types';
 // FIX: Using Firebase v8 compat imports and types. Removed v9 modular imports.
-import type firebase from 'firebase/app';
+// FIX: Use 'firebase/compat/app' to get correct types for v8 compat mode.
+import type firebase from 'firebase/compat/app';
 import { auth, db } from './firebase';
 
 

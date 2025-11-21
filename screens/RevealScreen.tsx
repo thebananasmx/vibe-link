@@ -5,7 +5,8 @@ import BentoGrid from '../components/BentoGrid';
 import EditModal from '../components/EditModal';
 import { RefreshCw, Upload, Save, Check, Loader2 } from 'lucide-react';
 // FIX: Using Firebase v8 compat types. Removed v9 modular imports.
-import type firebase from 'firebase/app';
+// FIX: Use 'firebase/compat/app' to get correct types for v8 compat mode.
+import type firebase from 'firebase/compat/app';
 import { auth, db } from '../firebase';
 import type { VibeConfig } from '../App';
 
