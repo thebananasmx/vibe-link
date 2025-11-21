@@ -45,7 +45,7 @@ const EditorScreen: React.FC<EditorScreenProps> = ({ vibeConfig, user, onShuffle
   };
   
   const handleCopyLink = () => {
-    const url = `${window.location.origin}/${vibeConfig.slug}`;
+    const url = `${window.location.origin}/view/${vibeConfig.slug}`;
     navigator.clipboard.writeText(url);
     toast.success('Link copied to clipboard!');
   }

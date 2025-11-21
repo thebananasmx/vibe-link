@@ -92,9 +92,9 @@ const App: React.FC = () => {
         navigate('/'); // Go home
         setIsHeaderAuthModalOpen(true); // Prompt login
       }
-    } else if (parts.length === 1 && parts[0] !== 'edit') {
-      // Public profile route: /[slug]
-      const slug = parts[0];
+    } else if (parts[0] === 'view' && parts[1]) {
+      // Public profile route: /view/[slug]
+      const slug = parts[1];
       const slugDoc = await db.collection('slugs').doc(slug).get();
       if (slugDoc.exists) {
         const { uid } = slugDoc.data() as { uid: string };
@@ -108,6 +108,9 @@ const App: React.FC = () => {
       } else {
         navigate('/'); // Slug not found
       }
+    } else if (parts.length === 1 && !['edit', 'view'].includes(parts[0])) {
+      // Old public profile route: /[slug] -> redirect to /view/[slug]
+      navigate(`/view/${parts[0]}`);
     } else {
       // Home route: /
       setVibeConfig(null);

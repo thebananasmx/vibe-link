@@ -90,7 +90,7 @@ const SharePreview: React.FC<SharePreviewProps> = ({ vibeConfig, onBack, navigat
   
   const handleCopyLink = () => {
     if (!loggedInUser || !vibeConfig.slug) return;
-    const url = `${window.location.origin}/${vibeConfig.slug}`;
+    const url = `${window.location.origin}/view/${vibeConfig.slug}`;
     navigator.clipboard.writeText(url);
     toast.success('Link copied to clipboard!');
   };
