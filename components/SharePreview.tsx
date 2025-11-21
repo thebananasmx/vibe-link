@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
 import type { UserProfile, BentoItemData } from '../types';
 import BentoGrid from './BentoGrid';
 import AuthModal from './AuthModal';
@@ -17,7 +16,6 @@ interface SharePreviewProps {
 }
 
 const SharePreview: React.FC<SharePreviewProps> = ({ vibeConfig, onBack }) => {
-  const { t } = useTranslation();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isUrlClaimed, setIsUrlClaimed] = useState(false);
   
@@ -39,8 +37,8 @@ const SharePreview: React.FC<SharePreviewProps> = ({ vibeConfig, onBack }) => {
            animate={{ opacity: 1, scale: 1 }}
            transition={{ duration: 0.5, type: 'spring' }}
           >
-              <h1 className="text-4xl font-bold text-white text-center mb-2">{t('sharePreview.title')}</h1>
-              <p className="text-lg text-gray-300 text-center mb-6">{t('sharePreview.subtitle')}</p>
+              <h1 className="text-4xl font-bold text-white text-center mb-2">Almost there!</h1>
+              <p className="text-lg text-gray-300 text-center mb-6">This is how your VibeLink will look. Perfect for your stories!</p>
 
               {/* Story Preview */}
               <div className="aspect-[9/16] h-[70vh] max-h-[800px] w-auto bg-[#F5EFE6] rounded-3xl border-8 border-black shadow-[8px_8px_0px_rgba(255,255,255,0.1)] overflow-hidden">
@@ -63,7 +61,7 @@ const SharePreview: React.FC<SharePreviewProps> = ({ vibeConfig, onBack }) => {
                  
                   {/* Footer */}
                   <footer className="text-center py-4 mt-4 text-gray-400 text-xs">
-                      <p>{t('revealScreen.footer')}</p>
+                      <p>Powered by VibeLink</p>
                   </footer>
                   </div>
               </div>
@@ -74,7 +72,7 @@ const SharePreview: React.FC<SharePreviewProps> = ({ vibeConfig, onBack }) => {
                       onClick={onBack}
                       className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-200 text-black font-bold text-lg rounded-xl border-2 border-black shadow-[4px_4px_0px_#000] hover:shadow-[6px_6px_0px_#000] active:shadow-[2px_2px_0px_#000] transform active:translate-x-[2px] active:translate-y-[2px] transition-all duration-200"
                   >
-                      <Edit size={20} /> {t('sharePreview.backButton')}
+                      <Edit size={20} /> Back to Edit
                   </button>
                   <button
                       onClick={() => !isUrlClaimed && setIsAuthModalOpen(true)}
@@ -87,11 +85,11 @@ const SharePreview: React.FC<SharePreviewProps> = ({ vibeConfig, onBack }) => {
                   >
                       {isUrlClaimed ? (
                         <>
-                          <Check size={20} /> {t('sharePreview.claimedButton')}
+                          <Check size={20} /> URL Claimed!
                         </>
                       ) : (
                         <>
-                          <Download size={20} /> {t('sharePreview.claimButton')}
+                          <Download size={20} /> Claim URL
                         </>
                       )}
                   </button>
